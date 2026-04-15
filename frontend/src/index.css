@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  html {
+    font-family: Inter, system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply antialiased;
+  }
+  /* Ensure tap targets are always large enough for one-handed mobile use */
+  button, a, input, select {
+    min-height: 44px;
+  }
+}
