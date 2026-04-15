@@ -1,6 +1,20 @@
 import { Router } from 'express'
 import { d365Client } from '../services/d365Client.js'
+import { env } from '../config/env.js'
 import type { D365SyncPayload } from '../types/session.js'
+
+const DEMO_ACCOUNTS = [
+  { accountid: 'acc-001', name: 'Farmco Netherlands BV', telephone1: '+31 20 555 0101' },
+  { accountid: 'acc-002', name: 'Trouw Poultry Farm', telephone1: '+31 30 555 0202' },
+  { accountid: 'acc-003', name: 'Nordic Salmon AS', telephone1: '+47 22 555 0303' },
+  { accountid: 'acc-004', name: 'AquaFeed Chile Ltda', telephone1: '+56 2 555 0404' },
+  { accountid: 'acc-005', name: 'Skretting Demo Customer', telephone1: '+47 51 555 0505' },
+]
+
+const DEMO_OPPORTUNITIES = [
+  { opportunityid: 'opp-001', name: 'Q2 Feed Renewal 2026', statecode: 0 },
+  { opportunityid: 'opp-002', name: 'New Aqua Product Trial', statecode: 0 },
+]
 
 const router = Router()
 
@@ -10,6 +24,13 @@ router.get('/accounts', async (req, res, next) => {
     const q = String(req.query['q'] ?? '').trim()
     if (q.length < 2) {
       res.json({ value: [] })
+      return
+    }
+    if (env.DEMO_MODE) {
+      const matches = DEMO_ACCOUNTS.filter((a) =>
+        a.name.toLowerCase().includes(q.toLowerCase())
+      )
+      res.json({ value: matches })
       return
     }
     const accounts = await d365Client.searchAccounts(q)
@@ -27,6 +48,10 @@ router.get('/opportunities', async (req, res, next) => {
       res.json({ value: [] })
       return
     }
+    if (env.DEMO_MODE) {
+      res.json({ value: DEMO_OPPORTUNITIES })
+      return
+    }
     const opportunities = await d365Client.getOpportunitiesByAccount(accountId)
     res.json({ value: opportunities })
   } catch (err) {
@@ -40,6 +65,20 @@ router.post('/sync', async (req, res, next) => {
     const { session } = req.body as D365SyncPayload
     if (!session || !session.account) {
       res.status(400).json({ error: 'session.account is required' })
+      return
+    }
+
+    if (env.DEMO_MODE) {
+      // Simulate a successful sync without hitting real D365
+      res.json({
+        success: true,
+        d365Ids: {
+          opportunityId: `demo-opp-${Date.now()}`,
+          phoneCallId: `demo-call-${Date.now()}`,
+          noteId: `demo-note-${Date.now()}`,
+          taskIds: [],
+        },
+      })
       return
     }
 

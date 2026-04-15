@@ -1,8 +1,9 @@
+import type { Request, Response, NextFunction } from 'express'
 import { expressjwt } from 'express-jwt'
 import jwksRsa from 'jwks-rsa'
 import { env } from '../config/env.js'
 
-export const authMiddleware = expressjwt({
+const jwtMiddleware = expressjwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
     rateLimit: true,
@@ -16,3 +17,15 @@ export const authMiddleware = expressjwt({
   ],
   algorithms: ['RS256'],
 })
+
+// In demo mode, skip JWT validation and inject a mock user
+function demoAuthMiddleware(req: Request, _res: Response, next: NextFunction): void {
+  ;(req as Request & { auth?: unknown }).auth = {
+    oid: 'demo-user-id',
+    name: 'Demo Rep',
+    preferred_username: 'demo@nutreco.com',
+  }
+  next()
+}
+
+export const authMiddleware = env.DEMO_MODE ? demoAuthMiddleware : jwtMiddleware

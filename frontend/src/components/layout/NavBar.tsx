@@ -1,6 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 
+const DEMO_MODE = !import.meta.env.VITE_AZURE_CLIENT_ID ||
+  import.meta.env.VITE_AZURE_CLIENT_ID === ''
+
 export function NavBar() {
   const { account, logout } = useAuth()
   const location = useLocation()
@@ -37,12 +40,16 @@ export function NavBar() {
           ))}
         </nav>
 
-        <button
-          onClick={logout}
-          className="text-blue-200 hover:text-white text-sm transition-colors"
-        >
-          {account?.name?.split(' ')[0] ?? 'Sign out'} ↗
-        </button>
+        {DEMO_MODE ? (
+          <span className="text-blue-300 text-xs bg-white/10 px-2 py-1 rounded-lg">Demo Mode</span>
+        ) : (
+          <button
+            onClick={logout}
+            className="text-blue-200 hover:text-white text-sm transition-colors"
+          >
+            {account?.name?.split(' ')[0] ?? 'Sign out'} ↗
+          </button>
+        )}
       </div>
 
       {/* Mobile nav */}

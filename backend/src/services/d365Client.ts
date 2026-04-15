@@ -4,18 +4,23 @@ import { env } from '../config/env.js'
 import type { D365Account, D365Opportunity, D365PhoneCall, D365Annotation, D365Task } from '../types/d365.js'
 
 class D365Client {
-  private readonly credential: ClientSecretCredential
+  private _credential: ClientSecretCredential | null = null
   private readonly http: AxiosInstance
   private cachedToken = ''
   private tokenExpiry = 0
 
-  constructor() {
-    this.credential = new ClientSecretCredential(
-      env.AZURE_TENANT_ID,
-      env.AZURE_CLIENT_ID,
-      env.AZURE_CLIENT_SECRET
-    )
+  private get credential(): ClientSecretCredential {
+    if (!this._credential) {
+      this._credential = new ClientSecretCredential(
+        env.AZURE_TENANT_ID,
+        env.AZURE_CLIENT_ID,
+        env.AZURE_CLIENT_SECRET
+      )
+    }
+    return this._credential
+  }
 
+  constructor() {
     this.http = axios.create({
       baseURL: `${env.D365_RESOURCE}/api/data/v${env.D365_API_VERSION}/`,
       headers: {
