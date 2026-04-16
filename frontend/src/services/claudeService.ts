@@ -4,7 +4,11 @@ import type { ChatMessage, SpinExtraction } from '../types/session'
 import type { SessionContext } from '../types/claude'
 import { apiClient } from './apiClient'
 
+const DEMO_MODE = !import.meta.env.VITE_AZURE_CLIENT_ID ||
+  import.meta.env.VITE_AZURE_CLIENT_ID === ''
+
 async function getToken(): Promise<string> {
+  if (DEMO_MODE) return '' // mock fetch intercepts /api/* without auth
   const accounts = msalInstance.getAllAccounts()
   if (accounts.length === 0) throw new Error('Not authenticated')
   const result = await msalInstance.acquireTokenSilent({
@@ -21,12 +25,11 @@ export const claudeService = {
     sessionContext: SessionContext
   ): AsyncGenerator<{ type: 'text'; text: string } | { type: 'stage'; stage: string }> {
     const token = await getToken()
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (token) headers['Authorization'] = `Bearer ${token}`
     const response = await fetch(ENDPOINTS.claudeChat, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
       body: JSON.stringify({ messages, sessionContext }),
     })
 
