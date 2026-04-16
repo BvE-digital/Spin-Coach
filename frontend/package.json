@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
+    "build:standalone": "vite build --config vite.standalone.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "react-dom": "^18.3.0",
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^7.0.0",
+    "vite-plugin-singlefile": "^2.3.2",
     "workbox-window": "^7.3.0",
     "zustand": "^5.0.0"
   },
