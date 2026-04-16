@@ -16,6 +16,7 @@ export default defineConfig({
     'import.meta.env.VITE_AZURE_REDIRECT_URI': JSON.stringify(''),
     'import.meta.env.VITE_D365_SCOPE': JSON.stringify(''),
   },
+  base: './',
   build: {
     outDir: 'dist-standalone',
     // Target modern browsers that support top-level await
